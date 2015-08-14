@@ -12,6 +12,8 @@ class Database extends Rest
 
 	private $db_user = 'root';
 	private $db_pass = 'root';
+	private $host = 'localhost';
+	private $dbname = 'test';
 
 	public function __construct($request) {
 		parent::__construct($request);
@@ -20,7 +22,7 @@ class Database extends Rest
 
 	private function linkDb()
 	{
-		$link = new PDO('mysql:host=localhost;dbname=test', $this->db_user, $this->db_pass);
+		$link = new PDO("mysql:host=$this->host;dbname=$this->dbname", $this->db_user, $this->db_pass);
 		$link->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 		return $link;
 	}
@@ -62,7 +64,7 @@ class Database extends Rest
 	}
 
 	/*
-	**	delete is working only with id. No security check!
+	**	delete is working only with target id. No security check!
 	*/
 
 	private function delete_db()
@@ -71,11 +73,9 @@ class Database extends Rest
 			return $this->generateError(404, "The DELETE method needs a target id.");
 		$pdo = $this->linkDb();
 		$req = "DELETE FROM $this->target WHERE " . $this->target . "_id = " . $this->args[0];
-		$res = $pdo->query($req);
+		$res = $pdo->exec($req);
 		$this->ret_code = 204;
-		if (is_a($res, 'PDOStatement'))
-			return $res->fetchAll();
-		return $res;
+		return $req;
 	}
 
 	/*
@@ -98,21 +98,7 @@ class Database extends Rest
 					return $this->generateError(405, "Only DELETE, GET, POST are supported.");
 			}
 		}
-		catch (Exception $e) {return $this->generateError(405, $e->getMessage());}
-	}
-
-	/*
-	**	Endpoints. You can include code and specific behaviours
-	*/
-
-	protected function user()
-	{
-		return $this->methodCaller();
-	}
-
-	protected function task()
-	{
-		return $this->methodCaller();
+		catch (Exception $e) {return $this->generateError(500, $e->getMessage());}
 	}
 }
 

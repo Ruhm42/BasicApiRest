@@ -33,7 +33,7 @@ abstract class Rest extends Retcode
 	{
 		if (method_exists($this, $this->target))
 			return $this->_response($this->{$this->target}($this->args));
-		return $this->generateError(404, "No endpoint: $this->target");
+		return $this->_response($this->generateError(404, "No endpoint: $this->target"));
 	}
 
 	private function _response($data)
